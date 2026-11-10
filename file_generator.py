@@ -23,7 +23,10 @@ if os.environ.get("VERCEL"):
 else:
     DOWNLOADS_DIR = BASE_DIR / "downloads"
 
-DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
 
 
 def format_file_size(size_bytes: int) -> str:

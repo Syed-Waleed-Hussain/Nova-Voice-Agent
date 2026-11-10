@@ -5,7 +5,7 @@ import json
 import base64
 import logging
 import asyncio
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -68,15 +68,26 @@ app.add_middleware(
 
 # Mount Directories: Static Files, Templates, and Downloads
 static_dir = BASE_DIR / "static"
-static_dir.mkdir(parents=True, exist_ok=True)
+try:
+    static_dir.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
+
 templates_dir = BASE_DIR / "templates"
-templates_dir.mkdir(parents=True, exist_ok=True)
+try:
+    templates_dir.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
+
 if os.environ.get("VERCEL"):
     downloads_dir = Path("/tmp/downloads")
 else:
     downloads_dir = BASE_DIR / "downloads"
 
-downloads_dir.mkdir(parents=True, exist_ok=True)
+try:
+    downloads_dir.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
 
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 app.mount("/downloads", StaticFiles(directory=str(downloads_dir)), name="downloads")
