@@ -1,5 +1,12 @@
 # 🎙️ NOVA 2.0 — Real-Time Voice Assistant, Web Search & Document Engine
 
+[![Live Web Application](https://img.shields.io/badge/Live%20Demo-voice--agent--sigma--three.vercel.app-7928CA?style=for-the-badge&logo=vercel&logoColor=white)](https://voice-agent-sigma-three.vercel.app)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Groq](https://img.shields.io/badge/Groq-Llama%203.1-F55036?style=for-the-badge&logo=groq&logoColor=white)](https://groq.com)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+
+> 🔗 **Live URL:** [https://voice-agent-sigma-three.vercel.app](https://voice-agent-sigma-three.vercel.app)
+
 A high-performance Full-Stack Voice Assistant featuring:
 - **Interactive 3D Floating Bot Orb** with Web Audio API frequency waveform visualizer.
 - **Real-Time Web Search & Source Retrieval** via DuckDuckGo Search (free/keyless) and optional Tavily API.
@@ -7,6 +14,18 @@ A high-performance Full-Stack Voice Assistant featuring:
 - **Multi-Format Document Generator** (PDF, PPTX, DOCX, XLSX, CSV).
 - **Strict Urdu Script Fidelity** (100% Urdu script, NEVER Hindi/Devanagari).
 - **Dual Voice & Text Interaction** with auto-playback of neural audio streams.
+
+---
+
+## 🌐 Live Web Application
+
+The project is deployed and live at:
+### 👉 [https://voice-agent-sigma-three.vercel.app](https://voice-agent-sigma-three.vercel.app)
+
+Try it directly in your browser:
+1. Allow microphone access when prompted.
+2. Tap the central glowing Bot Orb or press <kbd>Spacebar</kbd> to talk.
+3. Ask it questions, request live web searches, or say *"Create a PDF report on Quantum Computing"*!
 
 ---
 
