@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Nova — Voice AI Assistant & Document Engine</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              900: '#4c1d95',
+            },
+            dark: {
+              900: '#07090e',
+              800: '#0d131f',
+              700: '#141d2e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts & Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Marked.js for Markdown Rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body class="h-screen w-screen overflow-hidden bg-[#07090e] text-slate-100 flex flex-col justify-between relative selection:bg-purple-500 selection:text-white">
+
+  <!-- =====================================================================
+       Ambient Background Glowing Spots
+       ===================================================================== -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-purple-600/15 rounded-full blur-[128px]"></div>
+    <div class="absolute top-1/3 -right-32 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[160px]"></div>
+    <div class="absolute -bottom-32 left-1/4 w-[450px] h-[450px] bg-indigo-600/15 rounded-full blur-[140px]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:32px_32px]"></div>
+  </div>
+
+  <!-- =====================================================================
+       Top Navigation & Controls Bar
+       ===================================================================== -->
+  <header class="relative z-20 w-full px-4 md:px-8 py-3.5 flex items-center justify-between border-b border-white/[0.06] bg-slate-950/40 backdrop-blur-md">
+    
+    <!-- Left: Brand & Status -->
+    <div class="flex items-center space-x-3">
+      <div class="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 shadow-lg shadow-purple-500/25">
+        <i class="fa-solid fa-waveform-lines text-white text-base animate-pulse"></i>
+        <div class="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-purple-500 to-cyan-400 opacity-30 blur-sm"></div>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="text-base font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+            NOVA
+          </h1>
+          <span class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
+            Voice AI 2.0
+          </span>
+          <span class="hidden sm:inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+            Files & Urdu
+          </span>
+        </div>
+        <p id="subStatusText" class="text-[11px] text-slate-400 font-medium">Ready • Powered by Groq Llama 3.1</p>
+      </div>
+    </div>
+
+    <!-- Center: Dynamic Status Badge -->
+    <div class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full glass-pill text-xs font-medium text-slate-300 border border-white/5">
+      <span id="statusIndicatorDot" class="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400 animate-ping"></span>
+      <span id="mainStatusBadge">Agent Idle</span>
+    </div>
+
+    <!-- Right: Action Toggles & Drawer Button -->
+    <div class="flex items-center space-x-2 sm:space-x-3">
+      
+      <!-- Voice Output Mute/Unmute Toggle -->
+      <button id="toggleVoiceBtn" class="glass-pill px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:text-white flex items-center space-x-2 transition" title="Toggle AI Voice Output">
+        <i id="voiceToggleIcon" class="fa-solid fa-volume-high text-cyan-400"></i>
+        <span id="voiceToggleLabel" class="hidden md:inline">Voice On</span>
+      </button>
+
+      <!-- Hands-Free / Auto-Record Mode Toggle -->
+      <button id="toggleAutoRecordBtn" class="glass-pill px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white flex items-center space-x-2 transition" title="Auto-Record: Assistant listens automatically after speaking">
+        <i id="autoRecordIcon" class="fa-solid fa-repeat text-slate-400"></i>
+        <span class="hidden lg:inline">Hands-Free</span>
+      </button>
+
+      <!-- Persona Dropdown -->
+      <div class="relative">
+        <select id="personaSelect" class="glass-pill appearance-none px-3 py-2 pr-7 rounded-xl text-xs font-medium text-slate-200 bg-slate-900/80 cursor-pointer focus:outline-none focus:ring-1 focus:ring-purple-500 border border-white/10">
+          <option value="friendly">Nova (Friendly)</option>
+          <option value="bilingual">Zara (اردو / English)</option>
+          <option value="tech">Nexus (Tech Architect)</option>
+          <option value="executive">Aura (Executive)</option>
+          <option value="storyteller">Lyra (Storyteller)</option>
+        </select>
+        <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
+      </div>
+
+      <!-- Voice Selector Dropdown -->
+      <div class="relative hidden xl:block">
+        <select id="voiceSelect" class="glass-pill appearance-none px-3 py-2 pr-7 rounded-xl text-xs font-medium text-slate-200 bg-slate-900/80 cursor-pointer focus:outline-none focus:ring-1 focus:ring-purple-500 border border-white/10">
+          <option value="en-US-ChristopherNeural">Christopher (US Male)</option>
+          <option value="en-US-AriaNeural">Aria (US Female)</option>
+          <option value="ur-PK-AsadNeural">Asad (Urdu Male)</option>
+          <option value="ur-PK-UzmaNeural">Uzma (Urdu Female)</option>
+          <option value="en-GB-SoniaNeural">Sonia (UK Female)</option>
+        </select>
+        <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
+      </div>
+
+      <!-- Settings Modal Button -->
+      <button id="openSettingsBtn" class="glass-pill w-9 h-9 rounded-xl flex items-center justify-center text-slate-300 hover:text-white transition" title="Settings & Custom Prompt">
+        <i class="fa-solid fa-sliders text-sm"></i>
+      </button>
+
+      <!-- Toggle Chat Drawer Button -->
+      <button id="toggleDrawerBtn" class="relative px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 hover:text-white border border-purple-500/30 text-xs font-semibold flex items-center space-x-2 transition shadow-lg shadow-purple-500/10">
+        <i class="fa-solid fa-messages text-sm"></i>
+        <span class="hidden sm:inline">Files & Chat</span>
+        <span id="unreadBadge" class="hidden w-2 h-2 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400"></span>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       Primary Stage: Floating Central Bot & Wave Visualizer
+       ===================================================================== -->
+  <main class="relative z-10 flex-1 flex flex-col items-center justify-center px-4 -mt-6">
+
+    <!-- Container for Bot and Circular Audio Canvas -->
+    <div class="relative flex items-center justify-center w-[360px] h-[360px] sm:w-[420px] sm:h-[420px]">
+
+      <!-- Audio Waveform Visualizer Canvas (Background behind Orb) -->
+      <canvas id="visualizerCanvas" width="460" height="460" class="pointer-events-none"></canvas>
+
+      <!-- Floating Bot Element -->
+      <div id="floatingBot" class="bot-container floating-bot bot-idle relative flex items-center justify-center cursor-pointer group" title="Click to Talk / Stop">
+        
+        <!-- Rotating Orbital Halo Rings -->
+        <div class="orb-ring-1"></div>
+        <div class="orb-ring-2"></div>
+        <div class="orb-ring-3"></div>
+
+        <!-- Central High-Tech Glowing Core -->
+        <div id="orbCore" class="orb-core flex items-center justify-center relative overflow-hidden">
+          
+          <!-- Inner Core Icon Indicator -->
+          <div id="orbIconContainer" class="relative z-10 text-white transition-transform duration-300 group-hover:scale-110">
+            <i id="orbStateIcon" class="fa-solid fa-microphone text-2xl text-white/90 drop-shadow-md"></i>
+          </div>
+
+          <!-- Pulsing High-Tech Shimmer Effect -->
+          <div class="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent pointer-events-none"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Live Status Label & User Prompt Feedback -->
+    <div class="mt-4 flex flex-col items-center text-center max-w-lg px-4 space-y-2">
+      <div class="flex items-center space-x-2">
+        <span id="pulseDot" class="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse"></span>
+        <h2 id="heroStatusText" class="text-sm font-semibold tracking-wide text-slate-200">
+          Click Orb or Press Spacebar to Talk
+        </h2>
+      </div>
+
+      <!-- Live Generated File Notification Pill -->
+      <div id="liveFileBanner" class="hidden transition-all duration-300">
+        <a id="liveFileLink" href="#" download class="inline-flex items-center px-4 py-2 rounded-2xl glass-panel text-xs text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/10 shadow-xl transition space-x-2">
+          <i id="liveFileIcon" class="fa-solid fa-file-arrow-down text-emerald-400"></i>
+          <span id="liveFileText" class="font-medium">File Ready: Click to Download</span>
+          <i class="fa-solid fa-download text-[10px] ml-1"></i>
+        </a>
+      </div>
+
+      <!-- Live Web Search Sources Notification Pill -->
+      <div id="liveSourcesBanner" class="hidden transition-all duration-300">
+        <div class="inline-flex items-center px-4 py-1.5 rounded-2xl glass-panel text-xs text-cyan-300 border border-cyan-500/30 shadow-xl transition space-x-2">
+          <i class="fa-solid fa-globe text-cyan-400 animate-pulse"></i>
+          <span id="liveSourcesText" class="font-medium">Verified live web sources retrieved</span>
+        </div>
+      </div>
+
+      <!-- Real-time Live Subtitles / Spoken Response Preview -->
+      <div id="liveSubtitleBox" class="hidden transition-all duration-300">
+        <div class="live-caption-pill inline-flex items-center px-4 py-2 rounded-2xl glass-panel text-xs text-slate-300 max-w-md shadow-xl border border-white/10">
+          <i class="fa-solid fa-quote-left text-purple-400 mr-2 text-xs"></i>
+          <span id="liveSubtitleText" class="line-clamp-2 italic">Listening to your voice...</span>
+        </div>
+      </div>
+
+      <!-- Quick Action Prompt Suggestions -->
+      <div class="flex flex-wrap items-center justify-center gap-1.5 pt-2 text-[11px] text-slate-400">
+        <button onclick="window.app.triggerQuickPrompt('Search the web for the latest artificial intelligence breakthroughs')" class="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 text-cyan-300 transition flex items-center space-x-1">
+          <i class="fa-solid fa-globe text-cyan-400 text-[10px]"></i>
+          <span>Live Search</span>
+        </button>
+        <button onclick="window.app.triggerQuickPrompt('Create a PDF report on Artificial Intelligence trends')" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 transition flex items-center space-x-1">
+          <i class="fa-solid fa-file-pdf text-red-400 text-[10px]"></i>
+          <span>Make PDF</span>
+        </button>
+        <button onclick="window.app.triggerQuickPrompt('Generate a PowerPoint presentation for an AI startup pitch')" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 transition flex items-center space-x-1">
+          <i class="fa-solid fa-file-powerpoint text-orange-400 text-[10px]"></i>
+          <span>Make PPT</span>
+        </button>
+        <button onclick="window.app.triggerQuickPrompt('Make an Excel spreadsheet for 2026 marketing budget')" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 transition flex items-center space-x-1">
+          <i class="fa-solid fa-file-excel text-emerald-400 text-[10px]"></i>
+          <span>Make Excel</span>
+        </button>
+        <button onclick="window.app.triggerQuickPrompt('ایک پی ڈی ایف رپورٹ بناؤ مصنوعی ذہانت پر')" class="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-300 transition flex items-center space-x-1 urdu-text">
+          <span>اردو رپورٹ</span>
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- =====================================================================
+       Bottom Floating Input Bar (Text + Direct Mic Button)
+       ===================================================================== -->
+  <footer class="relative z-20 w-full px-4 pb-5 pt-2 flex justify-center">
+    <div class="w-full max-w-2xl glass-panel rounded-2xl p-2 sm:p-2.5 flex items-end space-x-2 shadow-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
+      
+      <!-- Primary Mic Button -->
+      <button id="micButton" class="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white flex items-center justify-center transition-all duration-300 shadow-lg shadow-purple-600/30 hover:scale-105 active:scale-95" title="Click to Record">
+        <i id="micBtnIcon" class="fa-solid fa-microphone text-base"></i>
+      </button>
+
+      <!-- Recording Active Badge / Timer -->
+      <div id="recordingTimerBadge" class="hidden items-center space-x-2 px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs font-mono font-medium animate-pulse">
+        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+        <span id="recordingTime">00:00</span>
+        <button id="cancelRecordBtn" class="text-slate-400 hover:text-white ml-1" title="Cancel">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Textarea Input Bar -->
+      <div class="flex-1 relative">
+        <textarea id="textInput" rows="1" placeholder="Ask Nova, generate documents (PDF/PPT/Excel), or talk..." class="w-full bg-transparent text-slate-100 placeholder-slate-400 text-sm px-3 py-2.5 resize-none focus:outline-none max-h-32 leading-relaxed" style="min-height: 44px;"></textarea>
+      </div>
+
+      <!-- Send Text Button -->
+      <button id="sendBtn" class="flex-shrink-0 w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white flex items-center justify-center transition border border-white/10 disabled:opacity-40 disabled:cursor-not-allowed" title="Send Message">
+        <i class="fa-solid fa-arrow-up text-sm"></i>
+      </button>
+
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       Sliding Chat Drawer (Collapsible Conversation & Downloads Overlay)
+       ===================================================================== -->
+  <aside id="chatDrawer" class="drawer-closed fixed top-0 right-0 h-full w-full sm:w-[460px] md:w-[500px] z-50 glass-panel border-l border-white/10 flex flex-col shadow-2xl bg-slate-950/85 backdrop-blur-2xl">
+    
+    <!-- Drawer Header -->
+    <div class="p-4 border-b border-white/10 flex items-center justify-between bg-slate-900/50">
+      <div class="flex items-center space-x-2.5">
+        <i class="fa-solid fa-message-lines text-purple-400 text-sm"></i>
+        <h3 class="text-sm font-bold tracking-tight text-white">Conversation & Downloads</h3>
+        <span id="messageCountBadge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10">0</span>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <!-- Clear History Button -->
+        <button id="clearChatBtn" class="text-slate-400 hover:text-red-400 text-xs px-2.5 py-1 rounded-lg hover:bg-white/5 transition flex items-center space-x-1" title="Clear Chat History">
+          <i class="fa-solid fa-trash-can text-xs"></i>
+          <span class="hidden sm:inline">Clear</span>
+        </button>
+        <!-- Close Drawer Button -->
+        <button id="closeDrawerBtn" class="w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat Messages Scrollable Log Area -->
+    <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4">
+      
+      <!-- Welcome Empty State -->
+      <div id="emptyChatPlaceholder" class="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 space-y-3">
+        <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-lg">
+          <i class="fa-solid fa-sparkles"></i>
+        </div>
+        <h4 class="text-sm font-semibold text-slate-200">Nova Voice & Document Hub</h4>
+        <p class="text-xs text-slate-400 max-w-xs leading-relaxed">
+          Talk in English or Urdu (اردو), or say "Create a PDF report on AI", "Generate a PPT pitch deck", or "Make an Excel sheet".
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Drawer Footer Quick Tips -->
+    <div class="p-3 border-t border-white/10 bg-slate-900/30 text-center">
+      <p class="text-[11px] text-slate-400">
+        Press <kbd class="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[10px] text-purple-300">Spacebar</kbd> to talk &bull; Say <em>"Make a PDF"</em> or <em>"ایک پی ڈی ایف بناؤ"</em>
+      </p>
+    </div>
+
+  </aside>
+
+  <!-- =====================================================================
+       Settings & Custom System Prompt Modal
+       ===================================================================== -->
+  <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="w-full max-w-md glass-panel rounded-2xl p-6 border border-white/10 shadow-2xl bg-slate-950/90 text-left space-y-4">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-sliders text-purple-400"></i>
+          <h3 class="text-sm font-bold text-white">Assistant Persona Settings</h3>
+        </div>
+        <button id="closeSettingsBtn" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Persona Tagline -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Active Persona</label>
+        <p id="personaTagline" class="text-xs text-purple-300 bg-purple-500/10 border border-purple-500/20 px-3 py-2 rounded-xl">
+          Warm, engaging, and conversational partner.
+        </p>
+      </div>
+
+      <!-- Custom System Instructions -->
+      <div>
+        <label for="customPromptInput" class="block text-xs font-semibold text-slate-300 mb-1">
+          Custom System Instructions (Optional)
+        </label>
+        <textarea id="customPromptInput" rows="4" placeholder="Customize how the AI should behave, speak, or address you..." class="w-full bg-slate-900/80 text-slate-200 text-xs p-3 rounded-xl border border-white/10 focus:outline-none focus:ring-1 focus:ring-purple-500 resize-none font-mono"></textarea>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end space-x-2 pt-2">
+        <button id="resetSettingsBtn" class="px-3 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition">
+          Reset Default
+        </button>
+        <button id="saveSettingsBtn" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/30 transition">
+          Save Settings
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Audio Element for Assistant Voice Playback -->
+  <audio id="ttsAudioPlayer" class="hidden" preload="auto"></audio>
+
+  <!-- Application Logic -->
+  <script src="/static/app.js"></script>
+</body>
+</html>

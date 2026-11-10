@@ -1,0 +1,31 @@
+# Environment Variables & API Keys
+.env
+api.txt
+*.env
+
+# Python Caches & Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Virtual Environments
+venv/
+env/
+.venv/
+ENV/
+
+# Vercel Deployment Artifacts
+.vercel/
+
+# Generated User Documents
+downloads/*
+!downloads/.gitkeep
+
+# Temporary & Log Files
+*.log
+test_write.txt
+.DS_Store
+Thumbs.db
+

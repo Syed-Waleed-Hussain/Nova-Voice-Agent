@@ -1,0 +1,491 @@
+/* ==========================================================================
+   Nova Voice Assistant - Styles & Animations
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+
+:root {
+  --bg-primary: #07090e;
+  --bg-surface: rgba(15, 23, 42, 0.65);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --glow-idle: rgba(139, 92, 246, 0.35);
+  --glow-listening: rgba(6, 182, 212, 0.6);
+  --glow-thinking: rgba(236, 72, 153, 0.5);
+  --glow-speaking: rgba(168, 85, 247, 0.6);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-primary);
+  color: #f1f5f9;
+  overflow: hidden;
+  user-select: none;
+}
+
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Urdu Typography Support */
+.urdu-text {
+  font-family: 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;
+  direction: rtl;
+  text-align: right;
+  line-height: 2.2 !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.glass-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* ==========================================================================
+   Central Floating Bot Orb Styling & States
+   ========================================================================== */
+
+.bot-container {
+  perspective: 1000px;
+}
+
+.floating-bot {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  animation: floatOrb 6s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+@keyframes floatOrb {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateY(-14px) rotate(1.5deg) scale(1.02);
+  }
+}
+
+/* Central Core Sphere */
+.orb-core {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+/* Multi-layered Animated Rings */
+.orb-ring-1 {
+  position: absolute;
+  inset: -15px;
+  border-radius: 50%;
+  border: 2px dashed rgba(168, 85, 247, 0.3);
+  animation: rotateClockwise 20s linear infinite;
+  pointer-events: none;
+}
+
+.orb-ring-2 {
+  position: absolute;
+  inset: -32px;
+  border-radius: 50%;
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  animation: rotateCounter 26s linear infinite;
+  pointer-events: none;
+}
+
+.orb-ring-3 {
+  position: absolute;
+  inset: -50px;
+  border-radius: 50%;
+  border: 1px dotted rgba(236, 72, 153, 0.2);
+  animation: rotateClockwise 35s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotateClockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotateCounter {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+/* --------------------------------------------------------------------------
+   STATE: IDLE (Breathing Neon Violet / Cyan)
+   -------------------------------------------------------------------------- */
+.bot-idle .orb-core {
+  background: radial-gradient(circle at 35% 35%, #a855f7 0%, #3b82f6 50%, #090d16 95%);
+  box-shadow: 
+    0 0 40px rgba(168, 85, 247, 0.4),
+    0 0 80px rgba(59, 130, 246, 0.25),
+    inset 0 0 25px rgba(255, 255, 255, 0.4);
+  animation: idleBreathing 4s ease-in-out infinite;
+}
+
+@keyframes idleBreathing {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.35), 0 0 80px rgba(59, 130, 246, 0.2), inset 0 0 25px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 65px rgba(168, 85, 247, 0.6), 0 0 110px rgba(59, 130, 246, 0.35), inset 0 0 35px rgba(255, 255, 255, 0.6);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   STATE: LISTENING (Audio Wave Reactive / Vibrant Emerald & Cyan)
+   -------------------------------------------------------------------------- */
+.bot-listening .orb-core {
+  background: radial-gradient(circle at 35% 35%, #06b6d4 0%, #10b981 55%, #032128 95%);
+  box-shadow: 
+    0 0 60px rgba(6, 182, 212, 0.7),
+    0 0 120px rgba(16, 185, 129, 0.45),
+    inset 0 0 30px rgba(255, 255, 255, 0.7);
+  animation: listeningPulse 1.2s ease-in-out infinite alternate;
+}
+
+.bot-listening .orb-ring-1 {
+  border-color: rgba(6, 182, 212, 0.7);
+  border-width: 2.5px;
+  animation-duration: 4s;
+}
+.bot-listening .orb-ring-2 {
+  border-color: rgba(16, 185, 129, 0.6);
+  animation-duration: 6s;
+}
+
+@keyframes listeningPulse {
+  0% {
+    transform: scale(1.02);
+    box-shadow: 0 0 45px rgba(6, 182, 212, 0.5), 0 0 90px rgba(16, 185, 129, 0.3);
+  }
+  100% {
+    transform: scale(1.12);
+    box-shadow: 0 0 80px rgba(6, 182, 212, 0.9), 0 0 150px rgba(16, 185, 129, 0.6);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   STATE: THINKING (Rotating Halo / Shimmering Violet & Pink Rings)
+   -------------------------------------------------------------------------- */
+.bot-thinking .orb-core {
+  background: radial-gradient(circle at 35% 35%, #ec4899 0%, #8b5cf6 50%, #1e1136 95%);
+  box-shadow: 
+    0 0 60px rgba(236, 72, 153, 0.6),
+    0 0 110px rgba(139, 92, 246, 0.4),
+    inset 0 0 30px rgba(255, 255, 255, 0.5);
+  animation: thinkingJitter 2s ease-in-out infinite;
+}
+
+.bot-thinking .orb-ring-1 {
+  border-color: rgba(236, 72, 153, 0.8);
+  border-width: 3px;
+  animation-duration: 2s;
+}
+.bot-thinking .orb-ring-2 {
+  border-color: rgba(168, 85, 247, 0.8);
+  animation-duration: 2.5s;
+}
+
+@keyframes thinkingJitter {
+  0%, 100% { transform: scale(0.98) rotate(0deg); }
+  50% { transform: scale(1.04) rotate(180deg); }
+}
+
+/* --------------------------------------------------------------------------
+   STATE: SPEAKING (Dynamic Frequency Expansion / Magenta & Blue Aura)
+   -------------------------------------------------------------------------- */
+.bot-speaking .orb-core {
+  background: radial-gradient(circle at 35% 35%, #8b5cf6 0%, #ec4899 50%, #090d16 95%);
+  box-shadow: 
+    0 0 65px rgba(139, 92, 246, 0.75),
+    0 0 130px rgba(236, 72, 153, 0.5),
+    inset 0 0 35px rgba(255, 255, 255, 0.65);
+}
+
+.bot-speaking .orb-ring-1 {
+  border-color: rgba(168, 85, 247, 0.8);
+  animation-duration: 3s;
+}
+
+/* Audio Visualizer Canvas */
+#visualizerCanvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   Chat Drawer / Sliding Panel
+   ========================================================================== */
+
+#chatDrawer {
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+#chatDrawer.drawer-closed {
+  transform: translateX(105%);
+  pointer-events: none;
+  opacity: 0;
+}
+
+#chatDrawer.drawer-open {
+  transform: translateX(0);
+  pointer-events: auto;
+  opacity: 1;
+}
+
+/* Message Bubbles */
+.message-bubble {
+  position: relative;
+  animation: slideFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.user-bubble {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.35) 0%, rgba(168, 85, 247, 0.35) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+}
+
+.ai-bubble {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* Live Subtitle Banner */
+.live-caption-pill {
+  animation: subtitlePulse 0.4s ease-out;
+}
+
+@keyframes subtitlePulse {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Audio Playing Indicator Waves */
+.sound-wave-bar {
+  display: inline-block;
+  width: 3px;
+  height: 12px;
+  background-color: #a855f7;
+  border-radius: 9999px;
+  animation: waveBar 1s ease-in-out infinite alternate;
+}
+.sound-wave-bar:nth-child(2) { animation-delay: 0.2s; height: 16px; }
+.sound-wave-bar:nth-child(3) { animation-delay: 0.4s; height: 10px; }
+
+@keyframes waveBar {
+  0% { transform: scaleY(0.4); opacity: 0.6; }
+  100% { transform: scaleY(1.3); opacity: 1; }
+}
+
+/* Markdown Formatting inside AI Bubbles */
+.prose-ai p {
+  margin-bottom: 0.6rem;
+  line-height: 1.6;
+}
+.prose-ai p:last-child {
+  margin-bottom: 0;
+}
+.prose-ai code {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.85em;
+  color: #38bdf8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.prose-ai pre {
+  background: #090d16 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.8rem;
+  margin: 0.6rem 0;
+  overflow-x: auto;
+}
+.prose-ai pre code {
+  background: transparent;
+  padding: 0;
+  border: none;
+  color: inherit;
+}
+.prose-ai ul, .prose-ai ol {
+  padding-left: 1.25rem;
+  margin-bottom: 0.6rem;
+}
+.prose-ai li {
+  margin-bottom: 0.25rem;
+}
+
+/* ==========================================================================
+   Document Generation Download Cards
+   ========================================================================== */
+
+.file-download-card {
+  margin-top: 0.75rem;
+  padding: 0.85rem;
+  border-radius: 0.875rem;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.file-download-card:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(168, 85, 247, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(168, 85, 247, 0.2);
+}
+
+.file-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* File Type Color Variants */
+.file-card-pdf .file-icon-box {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.file-card-pptx .file-icon-box {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.file-card-docx .file-icon-box {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.file-card-xlsx .file-icon-box {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.file-card-csv .file-icon-box {
+  background: rgba(6, 182, 212, 0.15);
+  color: #06b6d4;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.download-action-btn {
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.625rem;
+  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.download-action-btn:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, #4f46e5 100%);
+  transform: scale(1.03);
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.45);
+}
+
+/* ==========================================================================
+   Web Search Source Citations Styling
+   ========================================================================== */
+
+.source-citations-container {
+  margin-top: 0.65rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.5rem;
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  color: #e2e8f0;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.source-chip:hover {
+  background: rgba(6, 182, 212, 0.2);
+  border-color: rgba(6, 182, 212, 0.5);
+  color: #38bdf8;
+  transform: translateY(-1px);
+}
